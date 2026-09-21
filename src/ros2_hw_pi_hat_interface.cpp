@@ -12,7 +12,7 @@ ros2_board::ros2_board() : Node("ros2_board"), board() {
     auto imu_cb = [this] () {
         this->publish_imu_msg();
     };
-    timer_ = this->create_wall_timer(100ms, imu_cb);
+    timer_ = this->create_wall_timer(10ms, imu_cb);
 }
 
 ros2_board::~ros2_board() {

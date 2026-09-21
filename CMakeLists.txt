@@ -31,7 +31,11 @@ ament_target_dependencies(
   ros2_hw_pi_hat_interface
   rclcpp
   sensor_msgs
-  hw_pi_hat_interface
+)
+
+target_link_libraries(
+  ros2_hw_pi_hat_interface
+  hw_pi_hat_interface::hw_pi_hat_interface
 )
 
 install(
