@@ -14,16 +14,30 @@ find_package(sensor_msgs REQUIRED)
 add_executable(
   ros2_hw_pi_hat_interface
   src/hw_pi_hat_interface.cpp
+  src/ros2_hw_pi_hat_interface.cpp
 )
-ament_target_dependencies(ros2_hw_pi_hat_interface rclcpp sensor_msgs hw_pi_hat_interface)
-target_include_directories(ros2_hw_pi_hat_interface PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
-target_compile_features(ros2_hw_pi_hat_interface PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
+target_include_directories(ros2_hw_pi_hat_interface
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+)
+target_compile_features(
+  ros2_hw_pi_hat_interface
+  PUBLIC c_std_99 cxx_std_17
+) # Require C99 and C++17
 
-install(TARGETS ros2_hw_pi_hat_interface
-  DESTINATION lib/${PROJECT_NAME})
+ament_target_dependencies(
+  ros2_hw_pi_hat_interface
+  rclcpp
+  sensor_msgs
+  hw_pi_hat_interface
+)
+
+install(
+  TARGETS ros2_hw_pi_hat_interface
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

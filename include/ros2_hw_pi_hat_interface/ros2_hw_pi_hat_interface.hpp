@@ -5,7 +5,7 @@
 
 #include <hw_pi_hat_interface/board.hpp>
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/Imu.hpp"
+#include "sensor_msgs/msg/imu.hpp"
 
 class ros2_board : public rclcpp::Node {
 public:
@@ -17,6 +17,7 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr publisher_;
   Board board;
   std::optional<float *> imu_data_;
+  void publish_imu_msg();
 };
 
 #endif // __ROS2_HW_PI_HAT_INTERFACE__

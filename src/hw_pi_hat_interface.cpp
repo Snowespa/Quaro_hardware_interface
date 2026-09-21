@@ -1,7 +1,6 @@
 #include <cstdio>
 
 #include "rclcpp/rclcpp.hpp"
-
 #include "ros2_hw_pi_hat_interface/ros2_hw_pi_hat_interface.hpp"
 
 int main(int argc, char **argv) {
