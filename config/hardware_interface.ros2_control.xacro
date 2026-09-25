@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org.wiki/xacro">
+    <xacrop:property name="pi" value="3.145"/>
+    <ros2_control name="quaro_hardware_interface" type="system">
+        <hardware>
+            <plugin>quaro_hardware_interface/QuaroSystem</plugin>
+        </hardware>
+
+        <joint name="joint_0">
+            <command_interface name="position">
+                <param name="min">${-135/180*pi}</param>
+                <param name="max">${135/180*pi}</param>
+            </command_interface>
+            <state_interface name="position"/>
+        </joint>
+
+        <sensor name="imu">
+            <state_interface name="linear_acceleration.x"/>
+            <state_interface name="linear_acceleration.y"/>
+            <state_interface name="linear_acceleration.z"/>
+
+            <state_interface name="angular_velocity.x"/>
+            <state_interface name="angular_velocity.y"/>
+            <state_interface name="angular_velocity.z"/>
+        </sensor>
+
+        <sensor name="battery">
+            <state_interface name="voltage"/>
+        </sensor>
+
+        <gpio name="led_1">
+            <command_interface name="red" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+            
+            <command_interface name="green" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+
+            <command_interface name="blue" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+        </gpio>
+
+        <gpio name="led_2">
+            <command_interface name="red" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+            
+            <command_interface name="green" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+
+            <command_interface name="blue" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+        </gpio>
+
+        <gpio name="led_3">
+            <command_interface name="red" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+            
+            <command_interface name="green" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+
+            <command_interface name="blue" data_type="uint8_t">
+                <param name="min">0</param>
+                <param name="max">255</param>
+            </command_interface>
+        </gpio>
+
+        <gpio name="buzzer">
+            <command_interface name="on_time" data_type="float">
+                <param name="min">0.0</param>
+            </command_interface>
+
+            <command_interface name="off_time" data_type="float">
+                <param name="min">0.0</param>
+            </command_interface>
+
+            <command_interface name="frequency" data_type="float">
+                <param name="min">0.0</param>
+            </command_interface>
+
+            <command_interface name="repeat" data_type="float">
+                <param name="min">0.0</param>
+            </command_interface>
+        </gpio>
+
+    </ros2_control>
+</robot>

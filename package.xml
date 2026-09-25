@@ -1,24 +1,35 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>ros2_hw_pi_hat_interface</name>
+  <name>quaro_hardware_interface</name>
   <version>0.0.0</version>
-  <description>ROS2 interface now with the hiwonder pi hat extension board</description>
-  <maintainer email="maxine.nicolay@gmail.com">pi</maintainer>
+  <description>ROS2 hardware interface for the quaro robot</description>
+  <maintainer email="maxine.nicolay@gmail.com">max</maintainer>
   <license>Apache-2.0</license>
-
-  <build_depend>rclcpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-
-  <exec_depend>rclcpp</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <!-- ros2_control -->
+  <build_depend>hardware_interface</build_depend>
+  <build_depend>pluginlib</build_depend>
+
+  <exec_depend>hardware_interface</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+
+  <!-- ros2 -->
+  <build_depend>rclcpp</build_depend>
+  <exec_depend>rclcpp</exec_depend>
+
+  <!-- hardware library -->
+  <build_depend>hw_pi_hat_interface</build_depend>
+  <exec_depend>hw_pi_hat_interface</exec_depend>
+
+  <!-- testing -->
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
+    <hardware_interface plugin="${prefix}/quaro_control_plugins.xml"/>
   </export>
 </package>

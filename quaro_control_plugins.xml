@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<library path="quaro_hardware_interface">
+    <class 
+        name="quaro_hardware_interface/QuaroSystem"
+        type="quaro_hardware_interface::QuaroSystem"
+        base_class_type="quaro_hardware_interface::SystemInterface">
+
+        <description>
+            ros2_control hardware interface for the quaro robot
+        </description>
+    </class>
+</library>
