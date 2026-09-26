@@ -90,11 +90,8 @@ hardware_interface::return_type QuaroSystem::read(
   const rclcpp::Time &time, const rclcpp::Duration &period) {
   
   std::optional<int16_t> pos = board_->getServoPos(0);
-  if (pos) {
+  if (pos)
     joint_1_pos_state_ = static_cast<float>(pos.value());
-  } else {
-    return hardware_interface::return_type::ERROR;
-  }
 
   std::optional<float *> imu_data = board_->getIMU();
   if (imu_data) {
@@ -106,15 +103,11 @@ hardware_interface::return_type QuaroSystem::read(
     imu_ang_vel_x_ = data[3];
     imu_ang_vel_y_ = data[4];
     imu_ang_vel_z_ = data[5];
-  } else {
-    return hardware_interface::return_type::ERROR;
   }
 
   std::optional<uint16_t> battery = board_->getBattery();
   if (battery) {
     battery_voltage_ = static_cast<float>(battery.value())/1000.0;
-  } else {
-    return hardware_interface::return_type::ERROR;
   }
 
   return hardware_interface::return_type::OK;
