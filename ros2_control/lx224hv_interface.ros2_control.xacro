@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org.wiki/xacro">
+    <xacro:macro name="lx224hv_servo_interface" params="name">
+        <joint name="${name}">
+            <command_interface name="position">
+                <param name="min_angle">${-120/180*pi}</param>
+                <param name="min_input">0</param>
+                <param name="max_angle">${120/180*pi}</param>
+                <param name="max_input">1000</param>
+            </command_interface>
+            <state_interface name="position"/>
+        </joint>
+    </xacro:macro>
+</robot>

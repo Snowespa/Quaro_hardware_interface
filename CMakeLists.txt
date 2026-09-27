@@ -63,8 +63,8 @@ install(
 )
 
 install(
-  DIRECTORY config/
-  DESTINATION share/${PROJECT_NAME}/config
+  DIRECTORY ros2_control
+  DESTINATION share/${PROJECT_NAME}/ros2_control
 )
 
 ament_export_include_directories(include)

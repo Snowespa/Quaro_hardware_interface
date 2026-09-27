@@ -25,7 +25,7 @@ public:
   ~QuaroSystem() override = default;
 
   hardware_interface::CallbackReturn on_init(
-    const hardware_interface::HardwareInfo &info
+    const hardware_interface::HardwareComponentInterfaceParams & params
   ) override;
 
   hardware_interface::CallbackReturn on_configure(
@@ -52,8 +52,8 @@ public:
   //   const rclcpp_lifecycle::State &previous_state
   // ) override;
 
-  // std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
-  // std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
+  std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
+  std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
   hardware_interface::return_type read(
     const rclcpp::Time &time,
@@ -67,40 +67,63 @@ public:
 
 private:
 
+static constexpr double PI = 3.14159265358979323846;
+static constexpr double SERVO_CENTER = 500.0;
+static constexpr double SERVO_UNIT_PER_RAD = 1000.0 / (4.0 / 3.0 * PI);
 // hardware
 std::unique_ptr<Board> board_;
 
+static constexpr std::size_t NUM_JOINTS = 12;
+std::array<uint8_t, NUM_JOINTS> servo_ids_ {
+  0, 1, 2,
+  3, 4, 5,
+  6, 7, 8,
+  9, 10, 11,
+};
 // joints 0-11
-
-float joint_1_pos_cmd_{0.0};
-float joint_1_pos_state_{0.0};
+std::array<double, NUM_JOINTS> joints_pos_cmds_{};
+std::array<double, NUM_JOINTS> joints_pos_states_{};
+uint16_t servo_max = 1000;
+uint16_t servo_min = 0;
 
 // imu - MPU6050 returns 6 floats a_x, a_y, a_z, v_roll, v_pitch, v_yaw
-float imu_lin_acc_x_{0.0};
-float imu_lin_acc_y_{0.0};
-float imu_lin_acc_z_{0.0};
-
-float imu_ang_vel_x_{0.0};
-float imu_ang_vel_y_{0.0};
-float imu_ang_vel_z_{0.0};
+std::array<double, 3> imu_acc_{};
+std::array<double, 3> imu_ang_vel_{};
 
 // battery
-float battery_voltage_{0.0};
+double battery_voltage_{0.0};
 
-// Leds
-struct RGBLed {
-  uint8_t r{0};
-  uint8_t g{0};
-  uint8_t b{0};
-};
-// led
-std::array<RGBLed, 3> rgb_leds_;
+// --------------------------------------------------------------------------
+// Servo feedback thread
+// --------------------------------------------------------------------------
 
-// buzzer
-float buz_on_time_{0.0};
-float buz_off_time_{0.0};
-float buz_freq_{0.0};
-float buz_repeat_{0.0};
+std::thread servo_feedback_thread_;
+std::atomic<bool> servo_feedback_running_{false};
+
+// Written by servo feedback thread.
+// Only copied into joint_positions_ by read().
+std::array<double, NUM_JOINTS> servo_feedback_positions_{};
+std::array<bool, NUM_JOINTS> servo_feedback_valid_{};
+
+mutable std::mutex servo_feedback_mutex_;
+
+void servo_feedback_loop();
+
+// --------------------------------------------------------------------------
+// Startup state
+// --------------------------------------------------------------------------
+
+// Prevents the first write() from commanding zero before we have read all
+// servo positions. Commands are initialised to the actual servo positions.
+bool commands_initialized_{false};
+
+
+// --------------------------------------------------------------------------
+// Conversion helpers
+// --------------------------------------------------------------------------
+std::optional<uint16_t> joint_to_servo_position(double joint_position);
+
+std::optional<double> servo_to_joint_position(int16_t servo_position);
 
 };
 
