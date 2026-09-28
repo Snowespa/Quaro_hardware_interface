@@ -42,13 +42,13 @@ hardware_interface::CallbackReturn QuaroSystem::on_init(
 }
 
 hardware_interface::CallbackReturn QuaroSystem::on_configure(
-  const rclcpp_lifecycle::State &previous_state) {
+  const rclcpp_lifecycle::State &) {
   board_ = std::make_unique<Board>();
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn QuaroSystem::on_activate(
-  const rclcpp_lifecycle::State &previous_state) {
+  const rclcpp_lifecycle::State &) {
   if (!board_) {
     RCLCPP_ERROR(
       rclcpp::get_logger("QuaroSystem"), "Cannot activate: Board is not configured"
@@ -76,7 +76,7 @@ hardware_interface::CallbackReturn QuaroSystem::on_activate(
 } 
 
 hardware_interface::CallbackReturn QuaroSystem::on_deactivate(
-  const rclcpp_lifecycle::State &previous_state) {
+  const rclcpp_lifecycle::State &) {
   RCLCPP_INFO(
     rclcpp::get_logger("QuaroSystem"), "Deactivation Quaro System."
   );
@@ -99,7 +99,7 @@ hardware_interface::CallbackReturn QuaroSystem::on_deactivate(
 }
 
 hardware_interface::CallbackReturn QuaroSystem::on_shutdown(
-  const rclcpp_lifecycle::State &previous_state) {
+  const rclcpp_lifecycle::State &) {
   RCLCPP_INFO(
     rclcpp::get_logger("QuaroSystem"), "Shuting down Quaro Hardware."
   );
@@ -121,7 +121,7 @@ hardware_interface::CallbackReturn QuaroSystem::on_shutdown(
 }
 
 hardware_interface::CallbackReturn QuaroSystem::on_cleanup(
-  const rclcpp_lifecycle::State &previous_state) {
+  const rclcpp_lifecycle::State &) {
   RCLCPP_INFO(
     rclcpp::get_logger("QuaroSystem"), "Cleaning Quaro System up."
   );
@@ -183,7 +183,7 @@ std::vector<hardware_interface::StateInterface> QuaroSystem::export_state_interf
   // Battery.
   state_interfaces.emplace_back(
     "battery",
-    "voltage",
+    "battery_voltage",
     &battery_voltage_);
 
   return state_interfaces;
@@ -205,23 +205,24 @@ std::vector<hardware_interface::CommandInterface> QuaroSystem::export_command_in
   return command_interfaces;
 }
 
-hardware_interface::return_type QuaroSystem::read(const rclcpp::Time &time, const rclcpp::Duration &period) {
+hardware_interface::return_type QuaroSystem::read(const rclcpp::Time &, const rclcpp::Duration &) {
   if (!board_)
     return hardware_interface::return_type::ERROR;
+  std::optional<std::array<float, 6>> imu_data = board_->getIMU();
+  if (imu_data) {
+    std::array<float, 6> data = imu_data.value();
+    imu_acc_[0] = static_cast<double>(data[0]);
+    imu_acc_[1] = static_cast<double>(data[1]);
+    imu_acc_[2] = static_cast<double>(data[2]);
 
-  if (const auto imu = board_->getIMU())
-  {
-    imu_acc_[0] = static_cast<double>((*imu)[0]);
-    imu_acc_[1] = static_cast<double>((*imu)[1]);
-    imu_acc_[2] = static_cast<double>((*imu)[2]);
-
-    imu_ang_vel_[0] = static_cast<double>((*imu)[3]);
-    imu_ang_vel_[1] = static_cast<double>((*imu)[4]);
-    imu_ang_vel_[2] = static_cast<double>((*imu)[5]);
+    imu_ang_vel_[0] = static_cast<double>(data[3]);
+    imu_ang_vel_[1] = static_cast<double>(data[4]);
+    imu_ang_vel_[2] = static_cast<double>(data[5]);
   }
 
-  if (const auto battery = board_->getBattery())
-    battery_voltage_ = static_cast<double>(battery.value()) / 1000.0;
+  std::optional<uint16_t> battery_data = board_->getBattery();
+  if (battery_data)
+    battery_voltage_ = static_cast<double>(battery_data.value()) / 1000.0;
 
   {
     std::lock_guard<std::mutex> lock(servo_feedback_mutex_);
@@ -252,7 +253,7 @@ hardware_interface::return_type QuaroSystem::read(const rclcpp::Time &time, cons
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type QuaroSystem::write(const rclcpp::Time &time, const rclcpp::Duration & period) {
+hardware_interface::return_type QuaroSystem::write(const rclcpp::Time &, const rclcpp::Duration & period) {
   if (!board_)
     return hardware_interface::return_type::ERROR;
 
@@ -264,7 +265,7 @@ hardware_interface::return_type QuaroSystem::write(const rclcpp::Time &time, con
   std::array<uint16_t, NUM_JOINTS> servo_positions{};
 
   for (std::size_t i = 0; i < NUM_JOINTS; ++i) {
-    const auto servo_position = joint_to_servo_position(joints_pos_cmds_[i]);
+    std::optional<uint16_t> servo_position = joint_to_servo_position(joints_pos_cmds_[i]);
     
     if (!servo_position) {
       RCLCPP_ERROR(
@@ -293,7 +294,7 @@ hardware_interface::return_type QuaroSystem::write(const rclcpp::Time &time, con
 }
 
 void QuaroSystem::servo_feedback_loop() {
-  constexpr auto poll_interval = std::chrono::milliseconds(50);
+  constexpr auto poll_interval = std::chrono::milliseconds(100);
   
   while (servo_feedback_running_.load()){
     auto next_cycle = std::chrono::steady_clock::now() + poll_interval;
@@ -323,7 +324,7 @@ std::optional<uint16_t> QuaroSystem::joint_to_servo_position(double joint_pos) {
 std::optional<double> QuaroSystem::servo_to_joint_position(int16_t servo_pos) {
   if (servo_pos < 0 || servo_pos > 1000)
     return std::nullopt;
-  return static_cast<double>(servo_pos) - SERVO_CENTER / SERVO_UNIT_PER_RAD;
+  return (static_cast<double>(servo_pos) - SERVO_CENTER) / SERVO_UNIT_PER_RAD;
 }
 
 }
