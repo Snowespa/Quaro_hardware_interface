@@ -5,7 +5,7 @@
     <xacro:include filename='$(find quaro_hardware_interface)/ros2_control/lx224hv_interface.ros2_control.xacro'/>
 
     <xacro:macro name="quaro_ros2_control">
-        <ros2_control name="quaro_legs_hardware_interface" type="system">
+        <ros2_control name="quaro_legs_hardware_interface" type="system" rw_rate="50">
             <hardware>
                 <plugin>quaro_hardware_interface/QuaroSystem</plugin>
             </hardware>

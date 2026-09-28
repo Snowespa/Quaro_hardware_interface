@@ -294,19 +294,17 @@ hardware_interface::return_type QuaroSystem::write(const rclcpp::Time &, const r
 }
 
 void QuaroSystem::servo_feedback_loop() {
-  constexpr auto poll_interval = std::chrono::milliseconds(100);
+  constexpr auto poll_interval = std::chrono::milliseconds(50);
   
   while (servo_feedback_running_.load()){
     auto next_cycle = std::chrono::steady_clock::now() + poll_interval;
 
-    for (auto servo_id: servo_ids_) {
-      if (std::optional<double> position = board_->getServoPos(servo_id)) {
-        std::optional<double> joint_position = servo_to_joint_position(position.value());
-
-        if (joint_position) {
+    for (std::size_t i = 0; i < NUM_JOINTS; ++i) {
+      if (std::optional<double> position = board_->getServoPos(servo_ids_[i])) {
+        if(std::optional<double> joint_position = servo_to_joint_position(position.value())) {
           std::lock_guard<std::mutex> lock(servo_feedback_mutex_);
-          servo_feedback_positions_[servo_id] = joint_position.value();
-          servo_feedback_valid_[servo_id] = true;
+          servo_feedback_positions_[i] = joint_position.value();
+          servo_feedback_valid_[i] = true;
         }
       }
     }
