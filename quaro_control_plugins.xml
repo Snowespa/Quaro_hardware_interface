@@ -3,7 +3,7 @@
     <class 
         name="quaro_hardware_interface/QuaroSystem"
         type="quaro_hardware_interface::QuaroSystem"
-        base_class_type="quaro_hardware_interface::SystemInterface">
+        base_class_type="hardware_interface::SystemInterface">
 
         <description>
             ros2_control hardware interface for the quaro robot
