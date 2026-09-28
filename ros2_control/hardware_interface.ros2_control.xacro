@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
-<xacro:include filename='$(find quaro_hardware_interface)/ros2_control/lx224hw_inferface.ros2_control.xacro'/>
-
 <robot xmlns:xacro="http://www.ros.org.wiki/xacro">
-    <xacro:macro name="quaro_ros2_control" params="name">
 
+    <xacro:include filename='$(find quaro_hardware_interface)/ros2_control/lx224hv_interface.ros2_control.xacro'/>
+
+    <xacro:macro name="quaro_ros2_control">
         <ros2_control name="quaro_legs_hardware_interface" type="system">
             <hardware>
                 <plugin>quaro_hardware_interface/QuaroSystem</plugin>
@@ -37,7 +37,7 @@
             </sensor>
 
             <sensor name="battery">
-                <state_interface name="voltage"/>
+                <state_interface name="battery_voltage"/>
             </sensor>
         </ros2_control>
     </xacro:macro>
